@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/semi-structured-logs/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/semi-structured-logs/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/reverse-string/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/reverse-string/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/assembly-line/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/assembly-line/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/health-statistics/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/health-statistics/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/low-power-embedded-game/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/low-power-embedded-game/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/resistor-color/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/resistor-color/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/magazine-cutout/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/magazine-cutout/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/role-playing-game/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/role-playing-game/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/clock/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/clock/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/gigasecond/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/gigasecond/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/leap/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/leap/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/rpn-calculator/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/rpn-calculator/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/short-fibonacci/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/short-fibonacci/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/armstrong-numbers/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/armstrong-numbers/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/anagram/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/anagram/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/space-age/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/space-age/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/difference-of-squares/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/difference-of-squares/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/minesweeper/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/minesweeper/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/sublist/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sublist/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/luhn/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/luhn/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/grains/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/grains/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/parallel-letter-frequency/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/parallel-letter-frequency/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/parallel-letter-frequency/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/beer-song/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/beer-song/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/macros/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/poker/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/poker/tests" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/semi-structured-logs/target" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>
