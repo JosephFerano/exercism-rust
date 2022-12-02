@@ -133,6 +133,12 @@ fn test_aces_can_start_a_straight_low() {
 }
 
 #[test]
+fn test_aces_can_start_a_straight_flush_low() {
+    // aces can start a straight flush (A 2 3 4 5)
+    test(&["KS AH AS AD AC", "4H AH 3H 2H 5H"], &["4H AH 3H 2H 5H"])
+}
+
+#[test]
 fn test_no_ace_in_middle_of_straight() {
     // aces cannot be in the middle of a straight (Q K A 2 3)
     test(&["2C 3D 7H 5H 2S", "QS KH AC 2D 3S"], &["2C 3D 7H 5H 2S"])
@@ -204,12 +210,6 @@ fn test_straight_flush_beats_four_of_a_kind() {
 fn test_aces_can_end_a_straight_flush_high() {
     // aces can end a straight flush (10 J Q K A)
     test(&["KC AH AS AD AC", "10C JC QC KC AC"], &["10C JC QC KC AC"])
-}
-
-#[test]
-fn test_aces_can_start_a_straight_flush_low() {
-    // aces can start a straight flush (A 2 3 4 5)
-    test(&["KS AH AS AD AC", "4H AH 3H 2H 5H"], &["4H AH 3H 2H 5H"])
 }
 
 #[test]
