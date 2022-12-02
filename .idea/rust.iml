@@ -53,6 +53,8 @@
       <sourceFolder url="file://$MODULE_DIR$/macros/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/poker/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/poker/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/forth/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/forth/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/semi-structured-logs/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
