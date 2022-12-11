@@ -1,3 +1,3 @@
 
 [workspace]
-  members = ["semi-structured-logs", "reverse-string", "assembly-line", "resistor-color", "health-statistics", "low-power-embedded-game", "role-playing-game", "magazine-cutout", "short-fibonacci", "rpn-calculator", "gigasecond", "leap", "clock", "armstrong-numbers", "anagram", "space-age", "difference-of-squares", "sublist", "minesweeper", "luhn", "grains", "parallel-letter-frequency", "macros", "poker", "beer-song", "forth"]
+  members = ["semi-structured-logs", "reverse-string", "assembly-line", "resistor-color", "health-statistics", "low-power-embedded-game", "role-playing-game", "magazine-cutout", "short-fibonacci", "rpn-calculator", "gigasecond", "leap", "clock", "armstrong-numbers", "anagram", "space-age", "difference-of-squares", "sublist", "minesweeper", "luhn", "grains", "parallel-letter-frequency", "macros", "poker", "beer-song", "forth", "magazine-cutout"]

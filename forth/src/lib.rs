@@ -11,7 +11,27 @@ pub enum Error {
     InvalidWord,
 }
 
-pub enum Lexeme {
+pub enum TokenType {
+    Plus,
+    Minus,
+    Star,
+    Slash,
+    Colon,
+    Semicolon,
+    Dup,
+    Drop,
+    Swap,
+    Over,
+    Identifier,
+}
+
+pub enum Primitive {
+    Num of i16
+}
+
+pub struct Token {
+    token_type: TokenType
+    lexeme: String
 }
 
 impl Forth {
