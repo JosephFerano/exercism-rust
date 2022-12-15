@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::ops::{Add, Div, Mul, Sub};
+use std::ops::{Add, Mul, Sub};
 
 pub type Value = i32;
 pub type Result = std::result::Result<(), Error>;
@@ -37,7 +37,7 @@ fn parse_word_definition(
 ) -> Result {
     if let Some(variable_name) = tokens.get(start) {
         if let Some(c) = variable_name.chars().next() {
-            if !c.is_alphabetic() && c != '+' && c != '-' && c != '*' && c != '/' {
+            if !(c.is_alphabetic() || matches!(c, '+' | '-' | '*' | '/')) {
                 return Err(Error::InvalidWord);
             }
         }
@@ -107,7 +107,13 @@ impl Forth {
                 "+" => apply_arithmetic(self, Add::add)?,
                 "-" => apply_arithmetic(self, Sub::sub)?,
                 "*" => apply_arithmetic(self, Mul::mul)?,
-                "/" => apply_arithmetic(self, Div::div)?,
+                "/" => {
+                    match (self.stack.pop(), self.stack.pop()) {
+                        (Some(0), Some(_)) => return Err(Error::DivisionByZero),
+                        (Some(rhs), Some(lhs)) => self.stack.push(lhs / rhs),
+                        _ => return Err(Error::StackUnderflow),
+                    }
+                }
                 "dup" => match self.stack.last() {
                     Some(n) => self.stack.push(*n),
                     None => return Err(Error::StackUnderflow),
