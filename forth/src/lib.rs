@@ -3,8 +3,9 @@ use std::collections::HashMap;
 pub type Value = i32;
 pub type Result = std::result::Result<(), Error>;
 
+#[derive(Default)]
 pub struct Forth {
-    user_defined_words: HashMap<String, String>,
+    user_defined_words: HashMap<String, Vec<String>>,
     stack: Vec::<Value>,
 }
 
@@ -16,10 +17,50 @@ pub enum Error {
     InvalidWord,
 }
 
+fn resolve(forth: &Forth, key: &String) -> Vec<String> {
+    match &forth.user_defined_words.get(key) {
+        Some(v) => v.iter()
+            .map(|k| resolve(forth, k))
+            .collect::<Vec<Vec<String>>>()
+            .concat(),
+        None => vec![key.to_string()],
+    }
+}
+
+fn parse_word_definition(forth: &mut Forth, start: usize, end: usize, tokens: &mut [String]) -> Result {
+    if let Some(variable_name) = tokens.get(start) {
+        if let Some(c) = variable_name.chars().next() {
+            if !c.is_alphabetic() && c != '+' && c != '-' && c != '*' && c != '/' {
+                return Err(Error::InvalidWord)
+            }
+        }
+        // forth.user_defined_words
+        //     .entry(variable_name.to_string())
+        //     .and_modify(|v| v.clear());
+        let mut cursor = start + 1;
+        // First check if first word exists already
+        // Then check if any of the following words exist in the hashmap
+        while cursor < end {
+            let mut resolved = dbg!(resolve(forth, &tokens[cursor]));
+            forth.user_defined_words.entry(variable_name.to_string())
+                .and_modify(|v| {
+                    if cursor == start + 1 {
+                        v.clear();
+                    }
+                    v.append(&mut resolved);
+                })
+                .or_insert(resolved);
+            cursor += 1;
+        }
+    } else {
+        return Err(Error::InvalidWord)
+    }
+    Ok(())
+}
 
 impl Forth {
     pub fn new() -> Forth {
-        Forth { stack: Vec::<Value>::new(), user_defined_words: HashMap::new() }
+        Forth::default()
     }
 
     pub fn stack(&self) -> &[Value] {
@@ -27,11 +68,23 @@ impl Forth {
     }
 
     pub fn eval(&mut self, input: &str) -> Result {
-        let mut tokens = input.split_whitespace();
-        while let Some(token) = tokens.next() {
-            match &token.to_ascii_lowercase()[..] {
+        let mut tokens = input.split_whitespace()
+            .map(|t| t.to_ascii_lowercase())
+            .collect::<Vec<String>>();
+        let mut cursor = 0;
+        while cursor < tokens.len() {
+            match &tokens[cursor][..] {
                 num if num.parse::<i32>().is_ok() => {
                     self.stack.push(num.parse::<i32>().unwrap());
+                }
+                word if self.user_defined_words.get(word).is_some() => {
+                    if let Some(words) = self.user_defined_words.get(word) {
+                        tokens.remove(cursor);
+                        for (i, w) in words.iter().enumerate() {
+                            tokens.insert(cursor + i, w.to_owned());
+                        }
+                        continue;
+                    }
                 }
                 "+" => {
                     match (self.stack.pop(), self.stack.pop()) {
@@ -84,27 +137,27 @@ impl Forth {
                     }
                 }
                 ":" => {
-                    if let Some(word_name) = tokens.next() {
-                        if let Some(c) = word_name.chars().nth(0) {
-                            if !c.is_alphabetic() {
-                                return Err(Error::InvalidWord)
-                            }
+                    let mut peek = cursor + 1;
+                    let mut semicolon = None;
+                    while peek < tokens.len() {
+                        if tokens[peek] == ";" {
+                            semicolon = Some(peek);
+                            break;
                         }
-                        let word_def = Vec::<&str>::new();
-                        while let Some(token) = tokens.next() {
-                            // We have to figure out how to report an error
-                            // if we don't find a semi colon
-                            match &token.to_ascii_lowercase()[..] {
-                                ";" => break,
-                                _ => (),
-                            }
-                        }
+                        peek += 1;
+                    }
+                    if let Some(index) = semicolon {
+                        let result = parse_word_definition(self, cursor + 1, index, &mut tokens);
+                        cursor = index + 1;
+                        result?
                     } else {
                         return Err(Error::InvalidWord)
                     }
+                    continue;
                 }
-                _ => (),
+                _ => return Err(Error::UnknownWord),
             }
+            cursor += 1;
         }
         Ok(())
     }
