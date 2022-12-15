@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ops::{Add, Div, Mul, Sub};
 
 pub type Value = i32;
 pub type Result = std::result::Result<(), Error>;
@@ -6,7 +7,7 @@ pub type Result = std::result::Result<(), Error>;
 #[derive(Default)]
 pub struct Forth {
     user_defined_words: HashMap<String, Vec<String>>,
-    stack: Vec::<Value>,
+    stack: Vec<Value>,
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -19,7 +20,8 @@ pub enum Error {
 
 fn resolve(forth: &Forth, key: &String) -> Vec<String> {
     match &forth.user_defined_words.get(key) {
-        Some(v) => v.iter()
+        Some(v) => v
+            .iter()
             .map(|k| resolve(forth, k))
             .collect::<Vec<Vec<String>>>()
             .concat(),
@@ -27,22 +29,24 @@ fn resolve(forth: &Forth, key: &String) -> Vec<String> {
     }
 }
 
-fn parse_word_definition(forth: &mut Forth, start: usize, end: usize, tokens: &mut [String]) -> Result {
+fn parse_word_definition(
+    forth: &mut Forth,
+    start: usize,
+    end: usize,
+    tokens: &mut [String],
+) -> Result {
     if let Some(variable_name) = tokens.get(start) {
         if let Some(c) = variable_name.chars().next() {
             if !c.is_alphabetic() && c != '+' && c != '-' && c != '*' && c != '/' {
-                return Err(Error::InvalidWord)
+                return Err(Error::InvalidWord);
             }
         }
-        // forth.user_defined_words
-        //     .entry(variable_name.to_string())
-        //     .and_modify(|v| v.clear());
         let mut cursor = start + 1;
-        // First check if first word exists already
-        // Then check if any of the following words exist in the hashmap
         while cursor < end {
-            let mut resolved = dbg!(resolve(forth, &tokens[cursor]));
-            forth.user_defined_words.entry(variable_name.to_string())
+            let mut resolved = resolve(forth, &tokens[cursor]);
+            forth
+                .user_defined_words
+                .entry(variable_name.to_string())
                 .and_modify(|v| {
                     if cursor == start + 1 {
                         v.clear();
@@ -53,9 +57,22 @@ fn parse_word_definition(forth: &mut Forth, start: usize, end: usize, tokens: &m
             cursor += 1;
         }
     } else {
-        return Err(Error::InvalidWord)
+        return Err(Error::InvalidWord);
     }
     Ok(())
+}
+
+fn apply_arithmetic<F>(forth: &mut Forth, op: F) -> Result
+where
+    F: Fn(i32, i32) -> i32,
+{
+    match (forth.stack.pop(), forth.stack.pop()) {
+        (Some(rhs), Some(lhs)) => {
+            forth.stack.push(op(lhs, rhs));
+            Ok(())
+        }
+        _ => Err(Error::StackUnderflow),
+    }
 }
 
 impl Forth {
@@ -68,7 +85,8 @@ impl Forth {
     }
 
     pub fn eval(&mut self, input: &str) -> Result {
-        let mut tokens = input.split_whitespace()
+        let mut tokens = input
+            .split_whitespace()
             .map(|t| t.to_ascii_lowercase())
             .collect::<Vec<String>>();
         let mut cursor = 0;
@@ -86,46 +104,25 @@ impl Forth {
                         continue;
                     }
                 }
-                "+" => {
-                    match (self.stack.pop(), self.stack.pop()) {
-                        (Some(rhs), Some(lhs)) => self.stack.push(lhs + rhs),
-                        _ => return Err(Error::StackUnderflow),
-                    }
-                }
-                "-" => {
-                    match (self.stack.pop(), self.stack.pop()) {
-                        (Some(rhs), Some(lhs)) => self.stack.push(lhs - rhs),
-                        _ => return Err(Error::StackUnderflow),
-                    }
-                }
-                "*" => {
-                    match (self.stack.pop(), self.stack.pop()) {
-                        (Some(rhs), Some(lhs)) => self.stack.push(lhs * rhs),
-                        _ => return Err(Error::StackUnderflow),
-                    }
-                }
-                "/" => {
-                    match (self.stack.pop(), self.stack.pop()) {
-                        (Some(0), Some(_)) => return Err(Error::DivisionByZero),
-                        (Some(rhs), Some(lhs)) => self.stack.push(lhs / rhs),
-                        _ => return Err(Error::StackUnderflow),
-                    }
-                }
-                "dup" =>
-                    match self.stack.last() {
-                        Some(n) => self.stack.push(*n),
-                        None => return Err(Error::StackUnderflow),
-                    }
-                "drop" =>
+                "+" => apply_arithmetic(self, Add::add)?,
+                "-" => apply_arithmetic(self, Sub::sub)?,
+                "*" => apply_arithmetic(self, Mul::mul)?,
+                "/" => apply_arithmetic(self, Div::div)?,
+                "dup" => match self.stack.last() {
+                    Some(n) => self.stack.push(*n),
+                    None => return Err(Error::StackUnderflow),
+                },
+                "drop" => {
                     if self.stack.pop().is_none() {
-                        return Err(Error::StackUnderflow)
+                        return Err(Error::StackUnderflow);
                     }
+                }
                 "swap" => {
                     let len = self.stack.len();
                     if len >= 2 {
                         self.stack.swap(len - 1, len - 2);
                     } else {
-                        return Err(Error::StackUnderflow)
+                        return Err(Error::StackUnderflow);
                     }
                 }
                 "over" => {
@@ -133,7 +130,7 @@ impl Forth {
                     if len >= 2 {
                         self.stack.push(self.stack[len - 2]);
                     } else {
-                        return Err(Error::StackUnderflow)
+                        return Err(Error::StackUnderflow);
                     }
                 }
                 ":" => {
@@ -151,7 +148,7 @@ impl Forth {
                         cursor = index + 1;
                         result?
                     } else {
-                        return Err(Error::InvalidWord)
+                        return Err(Error::InvalidWord);
                     }
                     continue;
                 }
