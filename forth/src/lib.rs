@@ -1,11 +1,15 @@
-use std::collections::HashMap;
-
 pub type Value = i32;
 pub type Result = std::result::Result<(), Error>;
 
+struct Definition {
+    resolved: bool,
+    key: String,
+    symbols: Vec<String>,
+}
+
 #[derive(Default)]
 pub struct Forth {
-    user_defined_words: HashMap<String, Vec<String>>,
+    user_definitions: Vec<Definition>,
     stack: Vec<Value>,
 }
 
@@ -26,18 +30,7 @@ impl Forth {
         &self.stack
     }
 
-    fn resolve(&self, key: &String) -> Vec<String> {
-        match self.user_defined_words.get(key) {
-            Some(v) => v
-                .iter()
-                .map(|k| self.resolve(k))
-                .collect::<Vec<Vec<String>>>()
-                .concat(),
-            None => vec![key.to_string()],
-        }
-    }
-
-    fn parse_word_definition(&mut self, tokens: &[String]) -> Result {
+    fn add_definition(&mut self, tokens: &[String]) -> Result {
         let mut iter = tokens.iter();
         let variable_name = iter.next().ok_or(Error::InvalidWord)?;
         if let Some(c) = variable_name.chars().next() {
@@ -47,19 +40,24 @@ impl Forth {
         } else {
             return Err(Error::InvalidWord);
         }
-        for (i, token) in iter.enumerate() {
-            let mut resolved = self.resolve(token);
-            self.user_defined_words
-                .entry(variable_name.to_string())
-                .and_modify(|v| {
-                    if i == 0 {
-                        v.clear();
-                    }
-                    v.append(&mut resolved);
-                })
-                .or_insert(resolved);
-        }
+        self.user_definitions.push(Definition {
+            resolved: false,
+            key: variable_name.to_owned(),
+            symbols: iter.map(|s| s.to_owned()).collect::<Vec<String>>(),
+        });
         Ok(())
+    }
+
+    fn resolve(&mut self, cursor: usize, word: &str, tokens: &mut Vec<String>) {
+        let definition = self
+            .user_definitions
+            .iter()
+            .rfind(|def| def.key == *word && !def.resolved)
+            .unwrap();
+        tokens.remove(cursor);
+        for (i, w) in definition.symbols.iter().enumerate() {
+            tokens.insert(cursor + i, w.to_owned());
+        }
     }
 
     pub fn eval(&mut self, input: &str) -> Result {
@@ -73,14 +71,11 @@ impl Forth {
                 num if num.parse::<i32>().is_ok() => {
                     self.stack.push(num.parse::<i32>().unwrap());
                 }
-                word if self.user_defined_words.get(word).is_some() => {
-                    if let Some(words) = self.user_defined_words.get(word) {
-                        tokens.remove(cursor);
-                        for (i, w) in words.iter().enumerate() {
-                            tokens.insert(cursor + i, w.to_owned());
-                        }
-                        continue;
-                    }
+                word if self.user_definitions.iter().any(|def| def.key == word && !def.resolved) =>
+                {
+                    self.resolve(cursor, &word, &tokens);
+                    // definition.resolved = true;
+                    continue;
                 }
                 "+" => match (self.stack.pop(), self.stack.pop()) {
                     (Some(rhs), Some(lhs)) => self.stack.push(lhs + rhs),
@@ -120,7 +115,7 @@ impl Forth {
                     cursor += 1; // Skip semicolon
                     match tokens[cursor..].iter().position(|t| t == ";") {
                         Some(index) => {
-                            let result = self.parse_word_definition(&tokens[cursor..][..index]);
+                            let result = self.add_definition(&tokens[cursor..][..index]);
                             cursor += index + 1;
                             result?
                         }
@@ -132,6 +127,9 @@ impl Forth {
             }
             cursor += 1;
         }
+        self.user_definitions
+            .iter_mut()
+            .for_each(|def| def.resolved = false);
         Ok(())
     }
 }
