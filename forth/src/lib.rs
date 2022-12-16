@@ -2,7 +2,6 @@ pub type Value = i32;
 pub type Result = std::result::Result<(), Error>;
 
 struct Definition {
-    resolved: bool,
     key: String,
     symbols: Vec<String>,
 }
@@ -19,6 +18,18 @@ pub enum Error {
     StackUnderflow,
     UnknownWord,
     InvalidWord,
+}
+
+fn resolve(key: &str, context: &[Definition]) -> Vec<String> {
+    match context.iter()
+        .rposition(|def| def.key == key) {
+            Some(index) => context[index].symbols
+                .iter()
+                .map(|sym| resolve(sym, &context[0..index]))
+                .collect::<Vec<Vec<String>>>()
+                .concat(),
+            None => vec![key.to_owned()],
+        }
 }
 
 impl Forth {
@@ -41,23 +52,10 @@ impl Forth {
             return Err(Error::InvalidWord);
         }
         self.user_definitions.push(Definition {
-            resolved: false,
             key: variable_name.to_owned(),
             symbols: iter.map(|s| s.to_owned()).collect::<Vec<String>>(),
         });
         Ok(())
-    }
-
-    fn resolve(&mut self, cursor: usize, word: &str, tokens: &mut Vec<String>) {
-        let definition = self
-            .user_definitions
-            .iter()
-            .rfind(|def| def.key == *word && !def.resolved)
-            .unwrap();
-        tokens.remove(cursor);
-        for (i, w) in definition.symbols.iter().enumerate() {
-            tokens.insert(cursor + i, w.to_owned());
-        }
     }
 
     pub fn eval(&mut self, input: &str) -> Result {
@@ -71,10 +69,19 @@ impl Forth {
                 num if num.parse::<i32>().is_ok() => {
                     self.stack.push(num.parse::<i32>().unwrap());
                 }
-                word if self.user_definitions.iter().any(|def| def.key == word && !def.resolved) =>
+                word if self.user_definitions.iter().any(|def| def.key == word) =>
                 {
-                    self.resolve(cursor, &word, &tokens);
-                    // definition.resolved = true;
+                    let def_idx = self
+                        .user_definitions
+                        .iter()
+                        .rposition(|def| def.key == *word)
+                        .unwrap();
+                    let defs = &self.user_definitions[def_idx];
+                    let symbols = resolve(&defs.key, &self.user_definitions[..]);
+                    tokens.remove(cursor);
+                    for (i, w) in symbols.iter().enumerate() {
+                        tokens.insert(cursor + i, w.to_owned());
+                    }
                     continue;
                 }
                 "+" => match (self.stack.pop(), self.stack.pop()) {
@@ -127,9 +134,6 @@ impl Forth {
             }
             cursor += 1;
         }
-        self.user_definitions
-            .iter_mut()
-            .for_each(|def| def.resolved = false);
         Ok(())
     }
 }
