@@ -21,15 +21,15 @@ pub enum Error {
 }
 
 fn resolve(key: &str, context: &[Definition]) -> Vec<String> {
-    match context.iter()
-        .rposition(|def| def.key == key) {
-            Some(index) => context[index].symbols
-                .iter()
-                .map(|sym| resolve(sym, &context[0..index]))
-                .collect::<Vec<Vec<String>>>()
-                .concat(),
-            None => vec![key.to_owned()],
-        }
+    match context.iter().rposition(|def| def.key == key) {
+        Some(index) => context[index]
+            .symbols
+            .iter()
+            .map(|sym| resolve(sym, &context[0..index]))
+            .collect::<Vec<Vec<String>>>()
+            .concat(),
+        None => vec![key.to_owned()],
+    }
 }
 
 impl Forth {
@@ -69,8 +69,7 @@ impl Forth {
                 num if num.parse::<i32>().is_ok() => {
                     self.stack.push(num.parse::<i32>().unwrap());
                 }
-                word if self.user_definitions.iter().any(|def| def.key == word) =>
-                {
+                word if self.user_definitions.iter().any(|def| def.key == word) => {
                     let def_idx = self
                         .user_definitions
                         .iter()
