@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::ops::{Add, Mul, Sub};
+use std::ops::{Add, Sub, Mul, Div};
 
 pub type Value = i32;
 pub type Result = std::result::Result<(), Error>;
@@ -101,10 +101,10 @@ impl Forth {
                 "-" => apply_arithmetic(self, Sub::sub)?,
                 "*" => apply_arithmetic(self, Mul::mul)?,
                 "/" => {
-                    match (self.stack.pop(), self.stack.pop()) {
-                        (Some(0), Some(_)) => return Err(Error::DivisionByZero),
-                        (Some(rhs), Some(lhs)) => self.stack.push(lhs / rhs),
-                        _ => return Err(Error::StackUnderflow),
+                    match self.stack.last() {
+                        Some(0) => return Err(Error::DivisionByZero),
+                        Some(_) => apply_arithmetic(self, Div::div)?,
+                        None => return Err(Error::StackUnderflow),
                     }
                 }
                 "dup" => match self.stack.last() {
