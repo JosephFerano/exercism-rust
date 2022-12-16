@@ -18,7 +18,6 @@ pub enum Error {
 }
 
 impl Forth {
-
     pub fn new() -> Forth {
         Forth::default()
     }
@@ -50,8 +49,7 @@ impl Forth {
         }
         for (i, token) in iter.enumerate() {
             let mut resolved = self.resolve(token);
-            self
-                .user_defined_words
+            self.user_defined_words
                 .entry(variable_name.to_string())
                 .and_modify(|v| {
                     if i == 0 {
