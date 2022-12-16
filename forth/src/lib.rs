@@ -29,35 +29,28 @@ fn resolve(forth: &Forth, key: &String) -> Vec<String> {
     }
 }
 
-fn parse_word_definition(
-    forth: &mut Forth,
-    start: usize,
-    end: usize,
-    tokens: &mut [String],
-) -> Result {
-    if let Some(variable_name) = tokens.get(start) {
-        if let Some(c) = variable_name.chars().next() {
-            if !(c.is_alphabetic() || matches!(c, '+' | '-' | '*' | '/')) {
-                return Err(Error::InvalidWord);
-            }
-        }
-        let mut cursor = start + 1;
-        while cursor < end {
-            let mut resolved = resolve(forth, &tokens[cursor]);
-            forth
-                .user_defined_words
-                .entry(variable_name.to_string())
-                .and_modify(|v| {
-                    if cursor == start + 1 {
-                        v.clear();
-                    }
-                    v.append(&mut resolved);
-                })
-                .or_insert(resolved);
-            cursor += 1;
+fn parse_word_definition(forth: &mut Forth, tokens: &mut [String],) -> Result {
+    let mut iter = tokens.iter();
+    let variable_name = iter.next().ok_or(Error::InvalidWord)?;
+    if let Some(c) = variable_name.chars().next() {
+        if !(c.is_alphabetic() || matches!(c, '+' | '-' | '*' | '/')) {
+            return Err(Error::InvalidWord);
         }
     } else {
         return Err(Error::InvalidWord);
+    }
+    for (i, token) in iter.enumerate() {
+        let mut resolved = resolve(forth, token);
+        forth
+            .user_defined_words
+            .entry(variable_name.to_string())
+            .and_modify(|v| {
+                if i == 0 {
+                    v.clear();
+                }
+                v.append(&mut resolved);
+            })
+            .or_insert(resolved);
     }
     Ok(())
 }
@@ -150,7 +143,7 @@ impl Forth {
                         peek += 1;
                     }
                     if let Some(index) = semicolon {
-                        let result = parse_word_definition(self, cursor + 1, index, &mut tokens);
+                        let result = parse_word_definition(self, &mut tokens[1 + cursor..index]);
                         cursor = index + 1;
                         result?
                     } else {
