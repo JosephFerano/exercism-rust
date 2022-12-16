@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::ops::{Add, Sub, Mul, Div};
+use std::ops::{Add, Div, Mul, Sub};
 
 pub type Value = i32;
 pub type Result = std::result::Result<(), Error>;
@@ -29,7 +29,7 @@ fn resolve(forth: &Forth, key: &String) -> Vec<String> {
     }
 }
 
-fn parse_word_definition(forth: &mut Forth, tokens: &mut [String],) -> Result {
+fn parse_word_definition(forth: &mut Forth, tokens: &mut [String]) -> Result {
     let mut iter = tokens.iter();
     let variable_name = iter.next().ok_or(Error::InvalidWord)?;
     if let Some(c) = variable_name.chars().next() {
@@ -100,13 +100,11 @@ impl Forth {
                 "+" => apply_arithmetic(self, Add::add)?,
                 "-" => apply_arithmetic(self, Sub::sub)?,
                 "*" => apply_arithmetic(self, Mul::mul)?,
-                "/" => {
-                    match self.stack.last() {
-                        Some(0) => return Err(Error::DivisionByZero),
-                        Some(_) => apply_arithmetic(self, Div::div)?,
-                        None => return Err(Error::StackUnderflow),
-                    }
-                }
+                "/" => match self.stack.last() {
+                    Some(0) => return Err(Error::DivisionByZero),
+                    Some(_) => apply_arithmetic(self, Div::div)?,
+                    None => return Err(Error::StackUnderflow),
+                },
                 "dup" => match self.stack.last() {
                     Some(n) => self.stack.push(*n),
                     None => return Err(Error::StackUnderflow),
@@ -116,22 +114,14 @@ impl Forth {
                         return Err(Error::StackUnderflow);
                     }
                 }
-                "swap" => {
-                    let len = self.stack.len();
-                    if len >= 2 {
-                        self.stack.swap(len - 1, len - 2);
-                    } else {
-                        return Err(Error::StackUnderflow);
-                    }
-                }
-                "over" => {
-                    let len = self.stack.len();
-                    if len >= 2 {
-                        self.stack.push(self.stack[len - 2]);
-                    } else {
-                        return Err(Error::StackUnderflow);
-                    }
-                }
+                "swap" => match self.stack.len() {
+                    len if len >= 2 => self.stack.swap(len - 1, len - 2),
+                    _ => return Err(Error::StackUnderflow),
+                },
+                "over" => match self.stack.len() {
+                    len if len >= 2 => self.stack.push(self.stack[len - 2]),
+                    _ => return Err(Error::StackUnderflow),
+                },
                 ":" => {
                     let mut peek = cursor + 1;
                     let mut semicolon = None;
