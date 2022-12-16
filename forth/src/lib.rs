@@ -123,21 +123,16 @@ impl Forth {
                     _ => return Err(Error::StackUnderflow),
                 },
                 ":" => {
-                    let mut peek = cursor + 1;
-                    let mut semicolon = None;
-                    while peek < tokens.len() {
-                        if tokens[peek] == ";" {
-                            semicolon = Some(peek);
-                            break;
+                    match tokens[1+cursor..].iter().position(|t| t == ";") {
+                        Some(index) => {
+                            // Get absolute position rather than the relative to the previous slice
+                            // If we don't do this the multiple definitions just find the first semicolon
+                            let index = cursor + index + 1;
+                            let start = cursor + 1;
+                            cursor = index + 1;
+                            parse_word_definition(self, &mut tokens[start..index])?;
                         }
-                        peek += 1;
-                    }
-                    if let Some(index) = semicolon {
-                        let result = parse_word_definition(self, &mut tokens[1 + cursor..index]);
-                        cursor = index + 1;
-                        result?
-                    } else {
-                        return Err(Error::InvalidWord);
+                        None => return Err(Error::InvalidWord),
                     }
                     continue;
                 }
