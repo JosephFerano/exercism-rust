@@ -129,6 +129,10 @@ name = "poker"
 version = "1.1.0"
 
 [[package]]
+name = "prime_factors"
+version = "1.1.0"
+
+[[package]]
 name = "proc-macro-crate"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -147,6 +151,10 @@ checksum = "5ea3d908b0e36316caf9e9e2c4625cdde190a7e6f440d794667ed17a1855e725"
 dependencies = [
  "unicode-ident",
 ]
+
+[[package]]
+name = "proverb"
+version = "1.1.0"
 
 [[package]]
 name = "quote"
