@@ -26,6 +26,7 @@ fn addition_error() {
     assert_eq!(Err(Error::StackUnderflow), f.eval("+"));
 }
 
+
 #[test]
 fn can_subtract_two_numbers() {
     let mut f = Forth::new();

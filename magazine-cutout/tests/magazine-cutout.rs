@@ -1,13 +1,9 @@
-extern crate core;
-
-use core::unicode::conversions::to_upper;
 use magazine_cutout::*;
 
 #[test]
 fn test_magazine_has_fewer_words_available_than_needed() {
     let magazine = "two times three is not four"
         .split_whitespace()
-        .map(|w| w.to_upper())
         .collect::<Vec<&str>>();
     let note = "two times two is four"
         .split_whitespace()
