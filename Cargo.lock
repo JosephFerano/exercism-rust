@@ -212,6 +212,10 @@ name = "sublist"
 version = "0.0.0"
 
 [[package]]
+name = "sum-of-multiples"
+version = "1.5.0"
+
+[[package]]
 name = "syn"
 version = "1.0.103"
 source = "registry+https://github.com/rust-lang/crates.io-index"
